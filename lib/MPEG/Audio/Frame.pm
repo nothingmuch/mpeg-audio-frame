@@ -574,6 +574,17 @@ you're curious.
 
 =head1 METHODS
 
+There are two types of methods in this module, aside from the constructor
+C<read>.
+
+The first kind are accessors, which return the value of a certain header field,
+like C<version>, which will return the actual integer value of the bits of that
+field.
+
+The second kind is sorts of queries on the accessible data. For example,
+C<is_mono> checks to see of the C<channels> accessor returns the value for
+mono.
+
 =over 4
 
 =item read GLOB
@@ -582,6 +593,10 @@ This is the constructor method. It receives a reference to a filehandle, and
 reads the next (hopefully) valid frame it can find on the stream. Please make
 sure use binmode if you're on a funny platform - the module doesn't know the
 difference, and shouldn't change stuff, IMHO.
+
+=item offset
+
+The offset where the frame was found in the handle, as reported by tell().
 
 =item asbin
 
@@ -610,6 +625,14 @@ Returns the bytes of the checksum, as extracted from the handle. This is
 (definately) a valid checksum, unless there was none in the frame, in which
 case it will be undef. It (definately|probably) applies to the frame.
 
+=item version
+
+Returns the value of the MPEG version bits.
+
+=item layer
+
+Returns the value of the layer bits.
+
 =item length
 
 Returns the length, in bytes, of the entire frame. This is the length of the
@@ -631,7 +654,7 @@ See C<$MPEG::Audio::Frame::free_bitrate>.
 
 =item sample
 
-Returns the sample rate in Hz.
+Returns the sample rate in Hz, not the integer value from the header.
 
 =item seconds
 
@@ -639,34 +662,135 @@ Returns the length, in floating seconds, of the frame.
 
 =item framerate
 
-Should this frame describe the stream, the framerate would be the return value
-from this method.
+Given a constant rate file, of frames like this one, the value returned would
+be the number of such frames needed to get one second of audio.
 
-=item broken
+=item channels
 
-This returns true if the CRC computation failed for a protected layer I or III
-frame. It will always return false on unprotected frames, because we can't know
-if they're bad or not.
+Returns the integer value of the channels bits.
 
 =item pad
 
 Wether or not the frame was padded.
 
-=item offset
-
-The offset where the frame was found in the handle, as reported by tell().
-
 =item private
 
 Returns the value of the private bit.
+
+=item copyright
+
+Returns the vavlue of the copyright bit.
 
 =item home
 
 Returns the value of the original home bit.
 
+=item modext
+
+The mode extension bits. It is used to specify type of joint stereo to use in
+layer III, and the bands to apply intensity stereo to on layers I and II.
+
+=item emphasis
+
+=item emph
+
 =item emphasize
 
-Returns the value of the emphasize bits, 
+=item emphasise
+
+Returns the value of the emphasis bits, 
+
+=item broken
+
+=item crc_ok
+
+This returns true if the CRC computation failed for a protected layer I or III
+frame. It will always return false on unprotected frames, because we can't know
+if they're bad or not.
+
+C<crc_ok> is the opposite.
+
+=item has_crc
+
+Whether not the frame has a checksum.
+
+=item mono
+
+=item dual_channel
+
+Dual channel is not stereo, but two separate mono channels.
+
+=item stereo
+
+Stereo means 'normal' stereo... That is two channels.
+
+=item any_stereo
+
+Some kind of variation on two channel audio that isn't C<dual_channel>.
+
+=item joint_stereo
+
+Joint stereo is a type of stereo.
+
+=item normal_joint_stereo
+
+Neither of the below joint stereo variations.
+
+Intensity and MS stereo apply to layer III.
+
+=item intensity_stereo
+
+Intensity stereo is a type of joint stereo.
+
+Note that this method also dies on layers I or II. This is behavior might
+change if I change my mind and decide that this is stupid.
+
+Since layers I and II joint stereo is always implemented in terms of intensity
+stereo, however, I reckoned it was more appropriate to make this apply only to
+the layer III case, to provide stricter error checking.
+
+=item intensity_and_ms_stereo
+
+Both intensity and ms stereo.
+
+=item intensity_stereo_only
+
+Intensity stereo without ms stereo.
+
+=item ms_stereo
+
+=item ms_and_intensity_stereo
+
+=item ms_stereo_only
+
+See above.
+
+=item band_4
+
+=item band_8
+
+=item band_12
+
+=item band_16
+
+These methods all query whether the mode extension field specifies band N to
+31. They only apply to layers I and II.
+
+=item mpeg1
+
+=item mpeg2
+
+=item mpeg25
+
+The whether the version is equal to N.
+
+=item layer1
+
+=item layer2
+
+=item layer3
+
+Same for layers.
 
 =back
 
@@ -681,7 +805,11 @@ The L<emphasize> value, for example, has an invalid value, C<2>, which is
 meaningless to L<MPEG::Audio::Frame>.
 
 This does not apply to any of the header values used to actually mine the data,
-and any invalid values in these fields (like the MPEG version, or the bitrate) cause the current header start to be skipped under the assumption that it is 
+and any invalid values in these fields (like the MPEG version, or the bitrate)
+cause the current header start to be skipped under the assumption that it is
+simply not MPEG data.
+
+This really only applies to the emphasis header field.
 
 =item $MPEG::Audio::Frame::free_bitrate
 
