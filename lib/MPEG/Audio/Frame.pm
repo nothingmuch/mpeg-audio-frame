@@ -632,7 +632,7 @@ The offset where the frame was found in the handle, as reported by tell().
 =item asbin
 
 Returns the binary data extracted from the handle. This is
-(definately|probably) a valid MPEG 1 or 2 audio frame.
+(definitely|probably) a valid MPEG 1 or 2 audio frame.
 
 asbin is also called via the overloaded operator "", so if you treat the frame
 object like a string, you'd get the binary data you'd get by calling asbin
@@ -641,20 +641,20 @@ directly.
 =item content
 
 Returns the content of the frame, minus the header and the crc. This is
-(definately|probably) a valid MPEG 1 or 2 audio frame entity.
+(definitely|probably) a valid MPEG 1 or 2 audio frame entity.
 
 =item header
 
 Returns a list of integers in list context, or a 4 byte long binary string in
 scalar context. The hash represents the header, split into it's parts, with
-bits translated into '0' and '1'. The binary string is (definately|probably) a
+bits translated into '0' and '1'. The binary string is (definitely|probably) a
 valid MPEG 1 or 2 audio frame header.
 
 =item crc
 
 Returns the bytes of the checksum, as extracted from the handle. This is
-(definately) a valid checksum, unless there was none in the frame, in which
-case it will be undef. It (definately|probably) applies to the frame.
+(definitely) a valid checksum, unless there was none in the frame, in which
+case it will be undef. It (definitely|probably) applies to the frame.
 
 =item version
 
