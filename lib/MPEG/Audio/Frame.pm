@@ -459,6 +459,8 @@ sub emph {
 	$self->{header}[EMPH];
 }
 *emphasize = \&emph;
+*emphasise = \&emph;
+*emphasis = \&emph;
 
 sub offset { # the position in the handle where the frame was found
 	my $self = shift;
