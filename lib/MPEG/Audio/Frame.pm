@@ -240,8 +240,8 @@ sub read {
 
 	my $bitrate	= $bitrates[$version[$hr[VERSION]]][$layer[$hr[LAYER]]][$hr[BITRATE]] || $free_bitrate or return undef;
 	my $sample	= $samples[$hr[VERSION]][$hr[SAMPLE]];
-	
-	my $use_smaller = ($hr[VERSION] == 0) || ($hr[VERSION] == 2); # FIXME this is broken for multichannel
+
+	my $use_smaller = $hr[VERSION] == 2 || $hr[VERSION] == 0; # FIXME VERSION == 2 means no support for MPEG2 multichannel
 	my $length = $layer[$hr[LAYER]]
 		?  (($use_smaller ? 72 : 144) * ($bitrate * 1000) / $sample + $hr[PAD])		# layers 2 & 3
 		: ((($use_smaller ? 6  : 12 ) * ($bitrate * 1000) / $sample + $hr[PAD]) * 4);	# layer 1
@@ -533,6 +533,41 @@ or streams, and chunking them up into different frames. You can use this to
 accurately determine the length of an mp3, filter nonaudio data, or chunk up
 the file for streaming via datagram. Virtually anything is possible.
 
+=head1 MPEG FORMAT SUPPORT
+
+L<MPEG::Audio::Frame> supports various types of MPEG data.
+
+=over 4
+
+=item MPEG-1
+
+Any type of MPEG1 audio is supported, including the backwards compatible
+multichannel extensions to MPEG-1. See F<t/20-mpeg1-*.t>.
+
+=item MPEG-2 Multichannel
+
+MPEG 2 has a variation on the multichannel extension, which is not backwards
+compatible. It still structurally resembles MPEG 1, but there is no publically
+documented method for telling apart MPEG-2 MC from MPEG-2 LSF.
+
+=item MPEG-2 LSF
+
+There is another type of MPEG 2, which is more similar to MPEG 2.5, called
+MPEG-2 low sampling frequency. It the only type of MPEG-2 supported. See
+F<t/20-mpeg2-22050>.
+
+=item MPEG-2.5
+
+This unofficial standard is also supported. Since it is unofficial, and
+sometimes causes problems when streams contain garbage between frames, it can be disabled.
+
+There is a test, F<t/20-mpeg2-test30.t>, which fails if MPEG 2.5 is allowed. It
+is not included in the distribution because MPEG-2 multichannel is not
+supported and those tests are just failing bloat. Ask me about darcs access if
+you're curious.
+
+=back
+
 =head1 METHODS
 
 =over 4
@@ -668,7 +703,10 @@ Way cool.
 
 =head2 0.09 December 25th 2004
 
-Yasuhiro Sasama submitted a patch to properly handle MPEG2.x files.
+Dropped support for MPEG-2 multichannel in favour of MPEG-2 LSF. No one seems
+to support MC. If you know how to tell them apart, or have the money to pay the
+ISO guys for the MC/LSF docs, and would like support for them in this module,
+contact me. Otherwise it doesn't look like it's going to happen.
 
 Completely rehauled everything internal. Now nearly 50% faster (thanks
 L<Devel::DProf> and L<Devel::Cover>). B<< NOTE! This introduces an incompatible
