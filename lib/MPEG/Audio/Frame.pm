@@ -238,7 +238,7 @@ sub read {
 	my $bitrate	= $bitrates[$version[$hr[VERSION]]][$layer[$hr[LAYER]]][$hr[BITRATE]] || $free_bit_rate or return undef;
 	my $sample	= $samples[$hr[VERSION]][$hr[SAMPLE]];
 	
-	my $use_smaller = ($hr[VERSION] == 0) || ($hr[VERSION] == 2 && $bitrate <= 32);
+	my $use_smaller = ($hr[VERSION] == 0) || ($hr[VERSION] == 2); # FIXME this is broken for multichannel
 	my $length = $layer[$hr[LAYER]]
 		?  (($use_smaller ? 72 : 144) * ($bitrate * 1000) / $sample + $hr[PAD])		# layers 2 & 3
 		: ((($use_smaller ? 6  : 12 ) * ($bitrate * 1000) / $sample + $hr[PAD]) * 4);	# layer 1
