@@ -930,7 +930,7 @@ Some minor documentation and distribution fixes were made.
 
 =head1 AUTHOR
 
-Yuval Kojman <nothingmuch@altern.org>
+Yuval Kogman <nothingmuch@woobling.org>
 
 =head1 COPYRIGHT
 
