@@ -817,6 +817,11 @@ This is the bitrate to assume when frames are marked with the 'free' bit rate.
 
 This is undefined by default.
 
+=item $MPEG::Audio::Frame::mpeg25
+
+When true, as is the default, MPEG-2.5 is supported. If that causes trouble, it
+can be disabled.
+
 =back
 
 =head1 TIED HANDLE USAGE
