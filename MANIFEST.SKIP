@@ -8,3 +8,5 @@
 ^cover_db
 ^MANIFEST\.SKIP$
 \.tar\.gz$
+^test_mpegs
+^_darcs
