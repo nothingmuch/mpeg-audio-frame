@@ -429,11 +429,10 @@ sub mpeg2 {
 	$self->version == 2;
 }
 
-sub mpeg2x {
+sub mpeg25 {
 	my $self = shift;
 	$self->version == 0;
 }
-*mpeg25 = \&mpeg2x;
 
 sub layer {
 	my $self = shift;
