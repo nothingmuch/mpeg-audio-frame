@@ -532,6 +532,7 @@ sub broken { # was the crc broken?
 
     return $self->{broken};
 }
+*crc_nok = \&broken;
 
 
 # tie hack
@@ -732,13 +733,15 @@ Returns the value of the emphasis bits,
 
 =item broken
 
-=item crc_ok
+=item crc_nok
 
 This returns true if the CRC computation failed for a protected layer I or III
 frame. It will always return false on unprotected frames, because we can't know
 if they're bad or not.
 
-C<crc_ok> is the opposite.
+=item crc_ok
+
+C<crc_ok> is the opposite of C<broken>.
 
 =item has_crc
 
