@@ -344,36 +344,66 @@ sub modext {
 	$self->{header}[MODEXT];
 }
 
+sub _jmodes {
+	my $self = shift;
+	$self->layer3 || die "Joint stereo modes only make sense with layer III"
+}
+
 sub normal_joint_stereo {
 	my $self = shift;
-	$self->joint_stereo && !$self->intensity_stereo && !$self->ms_stereo;
+	$self->_jmodes && $self->joint_stereo && !$self->intensity_stereo && !$self->ms_stereo;
 }
 
 sub intensity_stereo {
 	my $self = shift;
-	$self->joint_stereo and $self->modext % 2 == 1;
+	$self->_jmodes and $self->joint_stereo and $self->modext % 2 == 1;
 }
 
 sub intensity_stereo_only {
 	my $self = shift;
-	$self->intensity_stereo && !$self->ms_stereo;
+	$self->_jmodes && $self->intensity_stereo && !$self->ms_stereo;
 }
 
 sub ms_stereo {
 	my $self = shift;
-	$self->joint_stereo and $self->modext > 1;
+	$self->_jmodes and $self->joint_stereo and $self->modext > 1;
 }
 
 sub ms_stereo_only {
 	my $self = shift;
-	$self->ms_stereo && !$self->intensity_stereo;
+	$self->_jmodes and $self->ms_stereo && !$self->intensity_stereo;
 }
 
 sub ms_and_intensity_stereo {
 	my $self = shift;
-	$self->ms_stereo && $self->intensity_stereo;
+	$self->_jmodes and $self->ms_stereo && $self->intensity_stereo;
 }
 *intensity_and_ms_stereo = \&ms_and_intensity_stereo;
+
+sub _bands {
+	my $self = shift;
+	!$self->layer3 || die "Intensity stereo bands only make sense with layers I I";
+}
+
+sub band_4 {
+	my $self = shift;
+	$self->_bands and $self->modext == 0;
+}
+
+sub band_8 {
+	my $self = shift;
+	$self->_bands and $self->modext == 1;
+}
+
+sub band_12 {
+	my $self = shift;
+	$self->_bands and $self->modext == 2;
+}
+
+sub band_16 {
+	my $self = shift;
+	$self->_bands and $self->modext == 3;
+}
 
 sub any_stereo {
 	my $self = shift;
