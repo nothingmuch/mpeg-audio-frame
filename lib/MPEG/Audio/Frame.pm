@@ -467,6 +467,10 @@ sub offset { # the position in the handle where the frame was found
 	$self->{offset}
 }
 
+sub crc_ok {
+	not shift->broken;
+}
+
 sub broken { # was the crc broken?
     my $self = shift;
     if (not defined $self->{broken}){
