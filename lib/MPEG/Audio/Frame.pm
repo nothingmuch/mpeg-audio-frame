@@ -526,7 +526,7 @@ handle.
 
 	open FILE,"file.mp3";
 
-        while(my $frame = MPEG::Audio::Frame->read(\*FILE)){
+	while(my $frame = MPEG::Audio::Frame->read(\*FILE)){
 		print $frame->offset(), ": ", $frame->bitrate(), "Kbps/", $frame->sample()/1000, "KHz\n"; # or something.
 	}
 
