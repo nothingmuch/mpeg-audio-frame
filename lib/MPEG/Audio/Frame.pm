@@ -26,8 +26,10 @@ use integer;
 
 use overload '""' => \&asbin;
 
-use vars qw/$VERSION $free_bit_rate $lax/;
+use vars qw/$VERSION $free_bit_rate $lax $mpeg25/;
 $VERSION = 0.09;
+
+$mpeg25 = 1; # normally support it
 
 # constants and tables
 
@@ -206,7 +208,8 @@ sub read {
 			# I wish vec could take non powers of 2 for the bit width param... *sigh*
 			# make sure there are no illegal values in the header
 			($hr[SYNC]		= ($hb[B_SYNC] 		& M_SYNC)		>> R_SYNC)		!= 0x07 and next; # see if the sync remains
-			($hr[VERSION]	= ($hb[B_VERSION]	& M_VERSION)	>> R_VERSION)	== 0x01 and next;
+			($hr[VERSION]	= ($hb[B_VERSION]	& M_VERSION)	>> R_VERSION)	== 0x00 and ($mpeg25 or next);
+			($hr[VERSION])														== 0x01 and next;
 			($hr[LAYER]		= ($hb[B_LAYER]		& M_LAYER)		>> R_LAYER)		== 0x00 and next;
 			($hr[BITRATE]	= ($hb[B_BITRATE]	& M_BITRATE)	>> R_BITRATE)	== 0x0f and next;
 			($hr[SAMPLE]	= ($hb[B_SAMPLE]	& M_SAMPLE) 	>> R_SAMPLE)	== 0x03 and next;
