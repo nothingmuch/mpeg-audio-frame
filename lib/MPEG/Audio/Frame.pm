@@ -245,36 +245,37 @@ sub read {
 	my $length = $layer[$hr[LAYER]]
 		?  (($use_smaller ? 72 : 144) * ($bitrate * 1000) / $sample + $hr[PAD])		# layers 2 & 3
 		: ((($use_smaller ? 6  : 12 ) * ($bitrate * 1000) / $sample + $hr[PAD]) * 4);	# layer 1
+
+	my $skip = 4 + ($hr[CRC] ? 0 : 2); # appearantly header length is included... learned this the hard way.
+	my $clength = $length - $skip; # this is the length of just the content, which is what we've got left to read
+
+	my $data = $header . $sum; # the output buffer
 	
-	my $clength = $length - 4 - ($hr[CRC] ? 0 : 2);
-	(read $fh, my($content), $clength or return undef) == $clength or return undef; # appearantly header length is included... learned this the hard way.
-	
-	my $self = bless {}, $pkg;
-	
-	%$self = (
+	(read $fh, $data, $clength, length($data) or return undef) == $clength or return undef; # now $data has the complete frame
+
+	return bless {
 		binhead	=> $header,		# binary header
 		header	=> \@hr,		# array of integer header records
-		content	=> $content,	# the actuaol content of the frame, excluding the header and crc
+		data	=> $data,		# the complete frame
+		skip	=> $skip,		# where the frame content starts
 		length	=> $length,		# the length of the header + content == length($frame->content()) + 4 + ($frame->crc() ? 2 : 0);
 		bitrate	=> $bitrate,	# the bitrate, in kilobits
 		sample	=> $sample,		# the sample rate, in Hz
 		offset	=> $offset,		# the offset where the header was found in the handle, based on tell
 		crc_sum	=> $sum,		# the bytes of the network order short that is the crc sum
-	);
-
-	$self;
+	}, $pkg;
 }
 
 # methods
 
 sub asbin { # binary representation of the frame
 	my $self = shift;
-	$self->{binhead} . $self->{crc_sum} . $self->{content}
+	$self->{data};
 }
 
 sub content { # byte content of frame, no header, no CRC sum
 	my $self = shift;
-	$self->{content}
+	substr($self->{data}, $self->{skip});
 }
 
 sub header { # array of records in list context, binary header in scalar context
@@ -515,8 +516,10 @@ sub broken { # was the crc broken?
 		$c = ($c << 8) ^ $crc_table[(($c >> 8) ^ ord((substr($self->{binhead},2,1)))) & 0xff];
 		$c = ($c << 8) ^ $crc_table[(($c >> 8) ^ ord((substr($self->{binhead},3,1)))) & 0xff];
 
+		my $content = $self->content;
+
 		for ($i = 0; $bits >= 32; do { $bits-=32; $i+=4 }){
-			my $data = unpack("N",substr($self->{content},$i,4));
+			my $data = unpack("N",substr($content,$i,4));
 				
 			$c = ($c << 8) ^ $crc_table[(($c >> 8) ^ ($data >> 24)) & 0xff];
 			$c = ($c << 8) ^ $crc_table[(($c >> 8) ^ ($data >> 16)) & 0xff];
@@ -525,7 +528,7 @@ sub broken { # was the crc broken?
 				
 		}
 		while ($bits >= 8){
-			$c = ($c << 8) ^ $crc_table[(($c >> 8) ^ (ord(substr($self->{content},$i++,1)))) & 0xff];
+			$c = ($c << 8) ^ $crc_table[(($c >> 8) ^ (ord(substr($content,$i++,1)))) & 0xff];
 		} continue { $bits -= 8 }
 		$self->{broken} = (( $c & 0xffff ) != unpack("n",$self->{crc_sum})) ? 1 : 0;
     }
