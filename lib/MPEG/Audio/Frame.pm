@@ -838,7 +838,9 @@ Way cool.
 
 =head1 HISTORY
 
-=head2 0.09 December 25th 2004
+=head2 0.09 January 13th 2005
+
+Yasuhiro Sasama submitted a patch to properly handle MPEG2.5 files.
 
 Dropped support for MPEG-2 multichannel in favour of MPEG-2 LSF. No one seems
 to support MC. If you know how to tell them apart, or have the money to pay the
@@ -850,7 +852,7 @@ L<Devel::DProf> and L<Devel::Cover>). B<< NOTE! This introduces an incompatible
 change! $frame->header will no longer return a hash of string values, but an
 array of integers >>.
 
-Test suite redone and expanded.
+Test suite redone and expanded. Some "official" test files included.
 
 Repackaged with L<Module::Build>, and various goodnesses.
 
