@@ -26,7 +26,7 @@ use integer;
 
 use overload '""' => \&asbin;
 
-use vars qw/$VERSION $free_bit_rate $lax $mpeg25/;
+use vars qw/$VERSION $free_bitrate $lax $mpeg25/;
 $VERSION = 0.09;
 
 $mpeg25 = 1; # normally support it
@@ -238,7 +238,7 @@ sub read {
 		(read $fh, $sum, 2 or return undef) == 2 or return undef;
 	}
 
-	my $bitrate	= $bitrates[$version[$hr[VERSION]]][$layer[$hr[LAYER]]][$hr[BITRATE]] || $free_bit_rate or return undef;
+	my $bitrate	= $bitrates[$version[$hr[VERSION]]][$layer[$hr[LAYER]]][$hr[BITRATE]] || $free_bitrate or return undef;
 	my $sample	= $samples[$hr[VERSION]][$hr[SAMPLE]];
 	
 	my $use_smaller = ($hr[VERSION] == 0) || ($hr[VERSION] == 2); # FIXME this is broken for multichannel
@@ -580,7 +580,15 @@ applicable.
 =item bitrate
 
 Returns the bitrate in kilobits. Note that 128Kbps means 128000, and not
-131072.
+131072. This not the actual integer value from the header.
+
+=item free_bitrate
+
+This returns true if the bit rate is free. Since free bit rate files have a
+constant rate, that is anything. The bitrate must be known in advance for the
+file to be parsable.
+
+See C<$MPEG::Audio::Frame::free_bitrate>.
 
 =item sample
 
@@ -635,6 +643,12 @@ meaningless to L<MPEG::Audio::Frame>.
 
 This does not apply to any of the header values used to actually mine the data,
 and any invalid values in these fields (like the MPEG version, or the bitrate) cause the current header start to be skipped under the assumption that it is 
+
+=item $MPEG::Audio::Frame::free_bitrate
+
+This is the bitrate to assume when frames are marked with the 'free' bit rate.
+
+This is undefined by default.
 
 =back
 
